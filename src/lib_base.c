@@ -132,7 +132,13 @@ LJLIB_ASM(setmetatable)		LJLIB_REC(.)
   if (!tvisnil(lj_meta_lookup(L, L->base, MM_metatable)))
     lj_err_caller(L, LJ_ERR_PROTMT);
   setgcref(t->metatable, obj2gco(mt));
-  if (mt) { lj_gc_objbarriert(L, t, mt); }
+  if (mt) {
+#if LJ_52
+    if (lj_meta_fast(L, mt, MM_gc))
+      lj_gc_tab_finalized(L, (GCobj*)t);
+#endif
+    lj_gc_objbarriert(L, t, mt);
+  }
   settabV(L, L->base-1-LJ_FR2, t);
   return FFH_RES(1);
 }

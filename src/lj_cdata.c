@@ -43,7 +43,7 @@ GCcdata *lj_cdata_newv(lua_State *L, CTypeID id, CTSize sz, CTSize align)
   setgcrefr(cd->nextgc, g->gc.root);
   setgcref(g->gc.root, obj2gco(cd));
   newwhite(g, obj2gco(cd));
-  cd->marked |= 0x80;
+  cd->marked |= LJ_GC_CDATAV;
   cd->gct = ~LJ_TCDATA;
   cd->ctypeid = id;
   return cd;
@@ -52,10 +52,9 @@ GCcdata *lj_cdata_newv(lua_State *L, CTypeID id, CTSize sz, CTSize align)
 /* Free a C data object. */
 void LJ_FASTCALL lj_cdata_free(global_State *g, GCcdata *cd)
 {
-  if (LJ_UNLIKELY(cd->marked & LJ_GC_CDATA_FIN)) {
+  if (LJ_UNLIKELY(cd->marked & LJ_GC_FINALIZED)) {
     GCobj *root;
     makewhite(g, obj2gco(cd));
-    markfinalized(obj2gco(cd));
     if ((root = gcref(g->gc.mmudata)) != NULL) {
       setgcrefr(cd->nextgc, root->gch.nextgc);
       setgcref(root->gch.nextgc, obj2gco(cd));
@@ -86,9 +85,9 @@ void lj_cdata_setfin(lua_State *L, GCcdata *cd, GCobj *obj, uint32_t it)
     tv = lj_tab_set(L, t, &tmp);
     setgcV(L, tv, obj, it);
     if (!tvisnil(tv))
-      cd->marked |= LJ_GC_CDATA_FIN;
+      cd->marked |= LJ_GC_FINALIZED;
     else
-      cd->marked &= ~LJ_GC_CDATA_FIN;
+      cd->marked &= ~LJ_GC_FINALIZED;
   }
 }
 

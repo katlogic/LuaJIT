@@ -17,12 +17,14 @@ enum {
 #define LJ_GC_WHITE0	0x01
 #define LJ_GC_WHITE1	0x02
 #define LJ_GC_BLACK	0x04
-#define LJ_GC_FINALIZED	0x08
 #define LJ_GC_WEAKKEY	0x08
 #define LJ_GC_WEAKVAL	0x10
-#define LJ_GC_CDATA_FIN	0x10
+#define LJ_GC_CDATAV    0x10
 #define LJ_GC_FIXED	0x20
 #define LJ_GC_SFIXED	0x40
+#define LJ_GC_FINALIZED	0x80 /* CAVEAT: For udata, it means fin has been called.
+			      * For CDATA and tables, it means finalizer is
+			      * yet to be called (and one is in place). */
 
 #define LJ_GC_WHITES	(LJ_GC_WHITE0 | LJ_GC_WHITE1)
 #define LJ_GC_COLORS	(LJ_GC_WHITES | LJ_GC_BLACK)
@@ -44,10 +46,12 @@ enum {
 #define black2gray(x)	((x)->gch.marked &= (uint8_t)~LJ_GC_BLACK)
 #define fixstring(s)	((s)->marked |= LJ_GC_FIXED)
 #define markfinalized(x)	((x)->gch.marked |= LJ_GC_FINALIZED)
+#define clearfinalized(x)	((x)->gch.marked &= ~LJ_GC_FINALIZED)
 
 /* Collector. */
 LJ_FUNC size_t lj_gc_separateudata(global_State *g, int all);
 LJ_FUNC void lj_gc_finalize_udata(lua_State *L);
+LJ_FUNC void lj_gc_tab_finalized(lua_State *L, GCobj *o);
 #if LJ_HASFFI
 LJ_FUNC void lj_gc_finalize_cdata(lua_State *L);
 #else
