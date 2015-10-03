@@ -1497,7 +1497,9 @@ static void build_subroutines(BuildCtx *ctx)
   |  cmp dword [BASE+12], LJ_TTAB;  jne ->fff_fallback
   |  mov TAB:RA, [BASE+8]
   |  // fallback if metatable contains __gc
+#if LJ_52
   |  test byte TAB:RA->nomm, 1<<MM_gc; jz ->fff_fallback
+#endif
   |  mov TAB:RB->metatable, TAB:RA
   |  mov PC, [BASE-4]
   |  mov dword [BASE-4], LJ_TTAB		// Return original table.
