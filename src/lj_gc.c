@@ -178,7 +178,7 @@ static int gc_traverse_tab(global_State *g, GCtab *t)
   cTValue *mode;
   GCtab *mt = tabref(t->metatable);
 #if LJ_52
-  int tofin = !isfinalized(t);
+  int tofin = isfinalized(t);
 #else
   int tofin = 0;
 #endif
