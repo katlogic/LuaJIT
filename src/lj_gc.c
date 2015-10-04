@@ -220,7 +220,7 @@ static int gc_traverse_tab(global_State *g, GCtab *t)
       }
     }
   }
-  return weak && !tofin; /* UNSURE: Keep black if __gc */
+  return weak || tofin; /* UNSURE: Keep gray if __gc */
 }
 
 /* Traverse a function. */
